@@ -1,8 +1,0 @@
-[00:00:03.356] Server  WARN    ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
-[00:00:03.925] Server  LOG     ✓ Ready in 2.9s
-[00:00:07.995] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:13.614] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:38.259] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
-[00:02:21.748] Server  ERROR   ⨯ "upstream image response failed for" "https://images.unsplash.com/photo-1581092919535-7146a2f0b2f4?auto=format&fit=crop&w=1400&q=80" 404
-[00:02:35.824] Server  ERROR   ⨯ "upstream image response failed for" "https://images.unsplash.com/photo-1581092919535-7146a2f0b2f4?auto=format&fit=crop&w=1400&q=80" 404
-[00:02:36.394] Server  ERROR   ⨯ "upstream image response failed for" "https://images.unsplash.com/photo-1603644449964-341a1a717c44?auto=format&fit=crop&w=1400&q=80" 404
