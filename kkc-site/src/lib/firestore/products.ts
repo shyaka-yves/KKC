@@ -1,7 +1,7 @@
 import {
-  listenVisibleProducts as listenVisibleSupabase,
-  listenAllProducts as listenAllSupabase,
-  listenFeaturedProducts as listenFeaturedSupabase,
+  subscribeVisibleProducts as listenVisibleSupabase,
+  subscribeAllProducts as listenAllSupabase,
+  subscribeFeaturedProducts as listenFeaturedSupabase,
   upsertProduct as upsertProductSupabase,
   deleteProduct as deleteProductSupabase
 } from "@/lib/supabase/products";
@@ -51,19 +51,19 @@ export async function listAllProducts(): Promise<Product[]> {
     .select("*")
     .order("updated_at", { ascending: false });
   return (data ?? []).map((row: Record<string, unknown>) => ({
-    id: row.id,
-    name: row.name,
-    description: row.description,
-    category: row.category,
-    imageUrl: row.image_url,
-    price: row.price,
-    currency: row.currency,
-    showPrice: row.show_price,
-    visible: row.visible,
-    featured: row.featured,
+    id: String(row.id ?? ""),
+    name: String(row.name ?? ""),
+    description: String(row.description ?? ""),
+    category: String(row.category ?? ""),
+    imageUrl: String(row.image_url ?? ""),
+    price: (row.price as number | null) ?? null,
+    currency: (row.currency as "RWF" | "USD" | null) ?? null,
+    showPrice: Boolean(row.show_price),
+    visible: row.visible !== false,
+    featured: row.featured === true,
     createdAt: row.created_at ? new Date(row.created_at as string).getTime() : undefined,
     updatedAt: row.updated_at ? new Date(row.updated_at as string).getTime() : undefined
-  }));
+  })) as Product[];
 }
 
 export async function upsertProduct(
