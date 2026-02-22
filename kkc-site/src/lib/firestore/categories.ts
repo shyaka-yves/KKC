@@ -1,69 +1,38 @@
 import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  orderBy,
-  query,
-  setDoc,
-  type Unsubscribe
-} from "firebase/firestore";
-
-import { getFirebaseDb } from "@/lib/firebase/client";
+  subscribeCategories as subscribeCategoriesSupabase,
+  upsertCategory as upsertCategorySupabase,
+  deleteCategory as deleteCategorySupabase,
+  type Category
+} from "@/lib/supabase/categories";
 import {
-  subscribeCategories,
+  subscribeCategories as subscribeCategoriesLocal,
   upsertCategoryLocal,
   deleteCategoryLocal
 } from "@/lib/local-store";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
 
-export type Category = {
-  id: string;
-  name: string;
-  slug: string;
-  visible: boolean;
-  order: number;
-  createdAt?: number;
-  updatedAt?: number;
-};
+export type { Category };
 
 export function listenCategories(onData: (cats: Category[]) => void): (() => void) | null {
-  const db = getFirebaseDb();
-  if (db) {
-    const q = query(collection(db, "categories"), orderBy("order", "asc"));
-    const unsub: Unsubscribe = onSnapshot(q, (snap) => {
-      onData(
-        snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Category, "id">) }))
-      );
-    });
-    return unsub;
+  if (isSupabaseConfigured()) {
+    return subscribeCategoriesSupabase(onData);
   }
-  return subscribeCategories((raw) => {
+  return subscribeCategoriesLocal((raw) => {
     onData((raw as Category[]).map((c) => ({ ...c, id: String(c.id ?? "") })));
   });
 }
 
 export async function upsertCategory(cat: Omit<Category, "id"> & { id?: string }): Promise<string> {
-  const db = getFirebaseDb();
-  if (db) {
-    const now = Date.now();
-    const payload = { ...cat, updatedAt: now, createdAt: cat.createdAt ?? now };
-    if (cat.id) {
-      await setDoc(doc(db, "categories", cat.id), payload, { merge: true });
-      return cat.id;
-    }
-    const created = await addDoc(collection(db, "categories"), payload);
-    return created.id;
+  if (isSupabaseConfigured()) {
+    return upsertCategorySupabase(cat);
   }
   return upsertCategoryLocal(cat as Record<string, unknown> & { id?: string });
 }
 
 export async function deleteCategory(categoryId: string): Promise<void> {
-  const db = getFirebaseDb();
-  if (db) {
-    await deleteDoc(doc(db, "categories", categoryId));
+  if (isSupabaseConfigured()) {
+    await deleteCategorySupabase(categoryId);
     return;
   }
   deleteCategoryLocal(categoryId);
 }
-

@@ -11,7 +11,7 @@ import { z } from "zod";
 import { Reveal } from "@/components/motion/Reveal";
 import { listenCategories, type Category, upsertCategory, deleteCategory } from "@/lib/firestore/categories";
 import { deleteProduct, listenAllProducts, upsertProduct } from "@/lib/firestore/products";
-import { uploadProductImage } from "@/lib/firebase/storage";
+import { uploadProductImage } from "@/lib/storage/upload";
 import type { Product } from "@/lib/products/types";
 import { cn } from "@/lib/utils";
 import { useAdminSession } from "@/hooks/useAdminSession";

@@ -1,18 +1,22 @@
 "use client";
 
 import {
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  type User
-} from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 
-import { getFirebaseAuth, getFirebaseDb, googleProvider } from "@/lib/firebase/client";
+import { getSupabase, isSupabaseConfigured } from "@/lib/supabase/client";
+
+type User = {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+};
 
 type AuthState = {
   user: User | null;
@@ -26,92 +30,101 @@ type AuthState = {
 
 const AuthContext = createContext<AuthState | null>(null);
 
-async function ensureUserDoc(user: User) {
-  const db = getFirebaseDb();
-  if (!db) return;
-  await setDoc(
-    doc(db, "users", user.uid),
-    {
-      uid: user.uid,
-      email: user.email ?? null,
-      displayName: user.displayName ?? null,
-      photoURL: user.photoURL ?? null,
-      updatedAt: Date.now()
-    },
-    { merge: true }
-  );
-}
-
-async function fetchIsAdmin(uid: string) {
-  const db = getFirebaseDb();
-  if (!db) return false;
-  const snap = await getDoc(doc(db, "roles", uid));
-  if (!snap.exists()) return false;
-  const data = snap.data() as { role?: string; admin?: boolean } | undefined;
+async function fetchIsAdmin(uid: string): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  const { data } = await sb.from("roles").select("role, admin").eq("user_id", uid).single();
   return data?.admin === true || data?.role === "admin";
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const auth = getFirebaseAuth();
-  const isEnabled = !!auth;
+  const isEnabled = isSupabaseConfigured();
 
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isLoading, setIsLoading] = useState(() => (auth ? true : false));
+  const [isLoading, setIsLoading] = useState(isEnabled);
 
   useEffect(() => {
-    if (!auth) return;
-    const unsub = onAuthStateChanged(auth, async (nextUser) => {
-      setUser(nextUser);
+    if (!isEnabled) {
       setIsLoading(false);
-      if (!nextUser) {
+      return;
+    }
+    const sb = getSupabase();
+    if (!sb) return;
+
+    const {
+      data: { subscription }
+    } = sb.auth.onAuthStateChange(async (_event, session) => {
+      if (!session?.user) {
+        setUser(null);
         setIsAdmin(false);
+        setIsLoading(false);
         return;
       }
-
+      setUser({
+        uid: session.user.id,
+        email: session.user.email ?? null,
+        displayName: session.user.user_metadata?.full_name ?? session.user.email ?? null,
+        photoURL: session.user.user_metadata?.avatar_url ?? null
+      });
       try {
-        await ensureUserDoc(nextUser);
-        const admin = await fetchIsAdmin(nextUser.uid);
+        const admin = await fetchIsAdmin(session.user.id);
         setIsAdmin(admin);
       } catch {
         setIsAdmin(false);
       }
+      setIsLoading(false);
     });
 
-    return () => unsub();
-  }, [auth]);
+    sb.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser({
+          uid: session.user.id,
+          email: session.user.email ?? null,
+          displayName: session.user.user_metadata?.full_name ?? session.user.email ?? null,
+          photoURL: session.user.user_metadata?.avatar_url ?? null
+        });
+        fetchIsAdmin(session.user.id).then(setIsAdmin);
+      }
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [isEnabled]);
 
   const signInWithGoogle = useCallback(async () => {
-    if (!auth) return;
-    const provider: GoogleAuthProvider = googleProvider;
-    provider.setCustomParameters({ prompt: "select_account" });
-    await signInWithPopup(auth, provider);
-  }, [auth]);
+    const sb = getSupabase();
+    if (!sb) return;
+    await sb.auth.signInWithOAuth({ provider: "google" });
+  }, []);
 
   const signInWithEmailPassword = useCallback(
     async (email: string, password: string) => {
-      if (!auth) return;
+      const sb = getSupabase();
+      if (!sb) return;
       const trimmedEmail = email.trim();
       if (!trimmedEmail || !password) return;
 
-      try {
-        await signInWithEmailAndPassword(auth, trimmedEmail, password);
-      } catch (error) {
-        const err = error as { code?: string };
-        if (err.code === "auth/user-not-found") {
-          await createUserWithEmailAndPassword(auth, trimmedEmail, password);
-        } else {
-          throw error;
-        }
-      }
+      const { error } = await sb.auth.signInWithPassword({
+        email: trimmedEmail,
+        password
+      });
+      if (error?.message?.includes("Invalid login")) {
+        const { error: signUpError } = await sb.auth.signUp({
+          email: trimmedEmail,
+          password
+        });
+        if (signUpError) throw signUpError;
+      } else if (error) throw error;
     },
-    [auth]
+    []
   );
 
   const signOutUser = useCallback(async () => {
-    if (!auth) return;
-    await signOut(auth);
-  }, [auth]);
+    const sb = getSupabase();
+    if (!sb) return;
+    await sb.auth.signOut();
+  }, []);
 
   const value = useMemo<AuthState>(
     () => ({
@@ -134,4 +147,3 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
-
