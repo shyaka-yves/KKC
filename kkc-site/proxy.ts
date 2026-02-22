@@ -1,16 +1,16 @@
 import createMiddleware from "next-intl/middleware";
 import { NextRequest } from "next/server";
 
-import { defaultLocale, locales } from "./i18n/routing";
+import { defaultLocale, locales } from "./src/i18n/routing";
 
-const intlMiddleware = createMiddleware({
+const intlHandler = createMiddleware({
   locales: [...locales],
   defaultLocale,
   localePrefix: "always",
 });
 
-export default function proxy(request: NextRequest) {
-  return intlMiddleware(request);
+export function proxy(request: NextRequest) {
+  return intlHandler(request);
 }
 
 export const config = {
