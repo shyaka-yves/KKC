@@ -1,0 +1,3 @@
+module.exports=[93753,a=>{"use strict";var b=a.i(87924),c=a.i(46271),d=a.i(68114);let e={hidden:{opacity:0,y:14,filter:"blur(6px)"},show:{opacity:1,y:0,filter:"blur(0px)",transition:{duration:.7,ease:[.2,.8,.2,1]}}};function f({children:a,className:f,delay:g=0}){return(0,b.jsx)(c.motion.div,{className:(0,d.cn)(f),variants:e,initial:"hidden",whileInView:"show",viewport:{once:!0,margin:"-80px"},transition:{delay:g},children:a})}a.s(["Reveal",()=>f])}];
+
+//# sourceMappingURL=src_components_motion_Reveal_tsx_d0c2a299._.js.map

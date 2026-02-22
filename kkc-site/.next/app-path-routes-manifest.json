@@ -1,0 +1,13 @@
+{
+  "/[locale]/about/page": "/[locale]/about",
+  "/[locale]/admin/page": "/[locale]/admin",
+  "/[locale]/contact/page": "/[locale]/contact",
+  "/[locale]/page": "/[locale]",
+  "/[locale]/products/page": "/[locale]/products",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/",
+  "/robots.txt/route": "/robots.txt",
+  "/sitemap.xml/route": "/sitemap.xml"
+}
