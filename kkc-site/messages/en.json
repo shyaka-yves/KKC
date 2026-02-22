@@ -1,0 +1,76 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Login",
+    "dashboard": "Dashboard"
+  },
+  "brand": {
+    "name": "KKC Quincaillerie",
+    "location": "Kigali – Gisozi, Rwanda",
+    "phoneLabel": "Phone / WhatsApp"
+  },
+  "home": {
+    "heroHeadline": "Your Trusted Construction Materials Partner in Kigali",
+    "heroSubheadline": "Premium-quality building supplies, fast assistance, and a professional team you can rely on.",
+    "ctaBrowse": "Browse Products",
+    "ctaWhatsApp": "Chat on WhatsApp",
+    "featuredCategories": "Featured Categories",
+    "featuredProducts": "Featured Products",
+    "whyTitle": "Why Choose Us",
+    "why1Title": "Quality you can trust",
+    "why1Desc": "Carefully selected materials from reputable suppliers.",
+    "why2Title": "Fast, friendly support",
+    "why2Desc": "Get guidance on the right product for the job.",
+    "why3Title": "Competitive pricing",
+    "why3Desc": "Strong value for professionals and homeowners.",
+    "aboutTitle": "About KKC Quincaillerie",
+    "aboutText": "We serve Kigali with reliable construction materials and a premium customer experience—built for contractors, engineers, and homeowners.",
+    "mapTitle": "Find us in Gisozi",
+    "contactTitle": "Contact",
+    "contactCta": "Message us on WhatsApp"
+  },
+  "about": {
+    "visionTitle": "Our Vision",
+    "visionText": "To become the leading provider of quality construction materials in Rwanda, recognized for excellence, reliability, and innovation in serving the building industry.",
+    "missionTitle": "Our Mission",
+    "missionText": "To provide high-quality construction materials and exceptional service to contractors, engineers, and homeowners in Kigali, helping them build better and more efficiently."
+  },
+  "products": {
+    "title": "Products",
+    "subtitle": "Search, filter by category, and chat instantly on WhatsApp.",
+    "searchPlaceholder": "Search products...",
+    "categories": "Categories",
+    "all": "All",
+    "chat": "Chat on WhatsApp",
+    "favorite": "Save",
+    "unfavorite": "Saved",
+    "noResults": "No products match your search."
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "signInSubtitle": "Use Google to save favourite products and manage your account.",
+    "continueGoogle": "Continue with Google",
+    "signOut": "Sign out",
+    "loginAdmin": "Login (Admin)"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "totalProducts": "Total products",
+    "totalCategories": "Total categories",
+    "manageProducts": "Manage products",
+    "manageCategories": "Manage categories",
+    "addProduct": "Add product",
+    "edit": "Edit",
+    "delete": "Delete",
+    "visible": "Visible",
+    "featured": "Featured",
+    "priceVisible": "Show price"
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  }
+}
+
