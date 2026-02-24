@@ -41,14 +41,14 @@ async function fetchFavorites(
     .select("product_id")
     .eq("user_id", userId);
   const set = new Set<string>();
-  for (const row of data ?? []) set.add(row.product_id);
+  for (const row of (data ?? []) as { product_id: string }[]) set.add(row.product_id);
   onIds(set);
 }
 
 export async function addFavorite(userId: string, productId: string) {
   const sb = getSupabase();
   if (!sb) throw new Error("Supabase not configured");
-  await sb.from("favorites").upsert(
+  await (sb.from("favorites") as any).upsert(
     { user_id: userId, product_id: productId },
     { onConflict: "user_id,product_id" }
   );

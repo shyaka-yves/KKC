@@ -12,15 +12,17 @@ export type Category = {
   updatedAt?: number;
 };
 
-function rowToCategory(row: {
-  id: string;
+type CategoryRow = {
+  id?: string;
   name: string;
   slug: string;
   visible: boolean;
   order: number;
   created_at: string;
   updated_at: string;
-}): Category {
+};
+
+function rowToCategory(row: CategoryRow & { id: string }): Category {
   return {
     id: row.id,
     name: row.name,
@@ -54,7 +56,7 @@ async function fetchCategories(onData: (cats: Category[]) => void) {
   const sb = getSupabase();
   if (!sb) return;
   const { data } = await sb.from("categories").select("*").order("order", { ascending: true });
-  onData((data ?? []).map(rowToCategory));
+  onData(((data ?? []) as CategoryRow[]).map((row) => rowToCategory(row as CategoryRow & { id: string })));
 }
 
 export async function upsertCategory(cat: Omit<Category, "id"> & { id?: string }): Promise<string> {
@@ -62,7 +64,7 @@ export async function upsertCategory(cat: Omit<Category, "id"> & { id?: string }
   if (!sb) throw new Error("Supabase not configured");
 
   const now = new Date().toISOString();
-  const row = {
+  const row: CategoryRow = {
     name: cat.name,
     slug: cat.slug,
     visible: cat.visible,
@@ -72,12 +74,18 @@ export async function upsertCategory(cat: Omit<Category, "id"> & { id?: string }
   };
 
   if (cat.id) {
-    await sb.from("categories").upsert({ id: cat.id, ...row }, { onConflict: "id" });
+    await (sb.from("categories") as any).upsert(
+      { id: cat.id, ...row },
+      { onConflict: "id" }
+    );
     return cat.id;
   }
-  const { data, error } = await sb.from("categories").insert(row).select("id").single();
+  const { data, error } = await (sb.from("categories") as any)
+    .insert(row)
+    .select("id")
+    .single();
   if (error) throw error;
-  return data.id;
+  return (data as { id: string }).id;
 }
 
 export async function deleteCategory(categoryId: string): Promise<void> {

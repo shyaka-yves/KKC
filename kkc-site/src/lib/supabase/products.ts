@@ -191,12 +191,18 @@ export async function upsertProduct(
   };
 
   if (product.id) {
-    await sb.from("products").upsert({ id: product.id, ...row }, { onConflict: "id" });
+    await (sb.from("products") as any).upsert(
+      { id: product.id, ...row },
+      { onConflict: "id" }
+    );
     return product.id;
   }
-  const { data, error } = await sb.from("products").insert(row).select("id").single();
+  const { data, error } = await (sb.from("products") as any)
+    .insert(row)
+    .select("id")
+    .single();
   if (error) throw error;
-  return data.id;
+  return (data as { id: string }).id;
 }
 
 export async function deleteProduct(productId: string): Promise<void> {
