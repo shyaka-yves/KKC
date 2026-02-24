@@ -99,3 +99,7 @@ export function listenFeaturedProducts(
     onData(products);
   });
 }
+
+// NOTE: This file provides a compatibility layer between the legacy
+// "firestore" API and the current Supabase implementation. It is safe
+// to modify comments here without changing runtime behaviour.
