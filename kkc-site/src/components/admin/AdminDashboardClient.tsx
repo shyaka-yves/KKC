@@ -1,5 +1,7 @@
 "use client";
 
+// Trigger Vercel deployment - Feb 25 2026
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogOut, Plus, Trash2, Pencil, ImageUp } from "lucide-react";
