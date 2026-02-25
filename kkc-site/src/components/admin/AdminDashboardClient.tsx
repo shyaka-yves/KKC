@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogOut, Plus, Trash2, Pencil, ImageUp } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -21,10 +22,12 @@ import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 function AdminLoginForm({
   t,
-  onLoginSuccess
+  onLoginSuccess,
+  router
 }: {
   t: ReturnType<typeof useTranslations>;
   onLoginSuccess: () => void;
+  router: ReturnType<typeof useRouter>;
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -64,12 +67,12 @@ function AdminLoginForm({
               console.log("Login response data:", data);
               
               if (data.ok) {
-                console.log("Login successful, calling onLoginSuccess");
-                // Show loading state and force session refresh
+                console.log("Login successful, redirecting to admin dashboard");
+                // Show loading state and redirect directly
                 setSubmitting(true);
-                setError("Logging in...");
+                setError("Redirecting...");
                 setTimeout(() => {
-                  onLoginSuccess();
+                  router.push('/admin'); // Direct navigation
                 }, 500);
               } else {
                 console.log("Login failed:", data.error);
@@ -178,6 +181,7 @@ function ModalShell({
 
 export function AdminDashboardClient() {
   const t = useTranslations();
+  const router = useRouter(); // Add router
   const { isAdmin, isLoading, logout, refetch } = useAdminSession();
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -229,7 +233,7 @@ export function AdminDashboardClient() {
 
   if (!isAdmin) {
     return (
-      <AdminLoginForm t={t} onLoginSuccess={refetch} />
+      <AdminLoginForm t={t} onLoginSuccess={refetch} router={router} />
     );
   }
 
