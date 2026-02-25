@@ -65,7 +65,12 @@ function AdminLoginForm({
               
               if (data.ok) {
                 console.log("Login successful, calling onLoginSuccess");
-                onLoginSuccess();
+                // Show loading state and force session refresh
+                setSubmitting(true);
+                setError("Logging in...");
+                setTimeout(() => {
+                  onLoginSuccess();
+                }, 500);
               } else {
                 console.log("Login failed:", data.error);
                 setError(data.error || "Invalid email or password.");
