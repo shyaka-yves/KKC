@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
-import { getSupabase } from "@/lib/supabase/client";
+import { getSupabaseServer } from "@/lib/supabase/server";
 
 export async function POST() {
   try {
-    const supabase = getSupabase();
-    if (!supabase) {
-      return NextResponse.json({ ok: false, error: "Supabase not configured" }, { status: 500 });
-    }
+    const supabase = getSupabaseServer();
     
     await supabase.auth.signOut();
     return NextResponse.json({ ok: true });

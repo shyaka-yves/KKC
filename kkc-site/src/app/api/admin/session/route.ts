@@ -1,17 +1,32 @@
 import { NextResponse } from "next/server";
-import { isAdminUser, getCurrentUser } from "@/lib/supabase-admin-auth";
+import { getSupabaseServer } from "@/lib/supabase/server";
 
 export async function GET() {
   try {
-    const isAdmin = await isAdminUser();
-    const user = await getCurrentUser();
+    const supabase = getSupabaseServer();
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return NextResponse.json({ isAdmin: false, user: null });
+    }
+
+    // Check if user is admin
+    const { data: roleData } = await supabase
+      .from("roles")
+      .select("role, admin")
+      .eq("user_id", user.id)
+      .single();
+
+    const role = roleData as { role?: string; admin?: boolean } | null;
+    const isAdmin = role?.admin === true || role?.role === "admin";
     
     return NextResponse.json({ 
       isAdmin,
-      user: user ? {
+      user: {
         id: user.id,
         email: user.email
-      } : null
+      }
     });
   } catch (error) {
     console.error("Admin session error:", error);
