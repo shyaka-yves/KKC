@@ -68,11 +68,14 @@ function AdminLoginForm({
               
               if (data.ok) {
                 console.log("Login successful, redirecting to admin dashboard");
-                // Show loading state and redirect directly
+                // Show loading state and redirect dynamically based on current locale
                 setSubmitting(true);
                 setError("Redirecting...");
                 setTimeout(() => {
-                  router.push('/admin'); // Direct navigation
+                  // Get current locale from URL or default to 'en'
+                  const currentPath = window.location.pathname;
+                  const locale = currentPath.split('/')[1] || 'en';
+                  router.push(`/${locale}/admin`);
                 }, 500);
               } else {
                 console.log("Login failed:", data.error);
