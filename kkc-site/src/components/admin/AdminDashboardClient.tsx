@@ -15,6 +15,7 @@ import { uploadProductImage } from "@/lib/storage/upload";
 import type { Product } from "@/lib/products/types";
 import { cn } from "@/lib/utils";
 import { useAdminSession } from "@/hooks/useAdminSession";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 function AdminLoginForm({
   t,
@@ -230,6 +231,16 @@ export function AdminDashboardClient() {
             </h1>
             <p className="mt-3 text-sm leading-7 text-slate-600">
               Manage products, categories and visibility without checkout.
+            </p>
+            <p className="mt-2 text-xs text-slate-500">
+              Backend:{" "}
+              {isSupabaseConfigured() ? (
+                <span className="font-medium text-emerald-600">Supabase connected</span>
+              ) : (
+                <span className="font-medium text-amber-600">
+                  Local only — set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY on Vercel
+                </span>
+              )}
             </p>
           </div>
 
