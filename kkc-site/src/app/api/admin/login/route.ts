@@ -50,7 +50,9 @@ export async function POST(request: Request) {
       .from("roles")
       .select("role, admin")
       .eq("user_id", data.user.id)
-      .single();
+      .maybeSingle(); // Use maybeSingle() instead of single() to handle 0 rows
+
+    console.log("ROLE QUERY RESULT:", { roleData, roleError, userId: data.user.id });
 
     if (roleError) {
       console.error("ROLE ERROR:", roleError);
@@ -62,7 +64,7 @@ export async function POST(request: Request) {
     console.log("ROLE DATA:", role);
     
     if (!role?.admin && role?.role !== "admin") {
-      console.log("ADMIN ACCESS DENIED - Role:", role);
+      console.log("ADMIN ACCESS DENIED - Role:", role, "User ID:", data.user.id);
       await supabase.auth.signOut();
       return NextResponse.json({ ok: false, error: "Admin access required" }, { status: 403 });
     }
