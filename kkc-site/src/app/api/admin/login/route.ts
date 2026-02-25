@@ -26,7 +26,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Email and password required" }, { status: 400 });
     }
 
-    console.log("Attempting login for email:", email);
+    console.log("=== LOGIN ATTEMPT ===");
+    console.log("Email:", email);
+    console.log("Supabase URL:", url);
+    console.log("Supabase configured:", !!(url && key));
     
     const supabase = getSupabaseServer();
 
@@ -36,11 +39,11 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      console.error("Supabase auth error:", error);
+      console.error("AUTH ERROR:", error);
       return NextResponse.json({ ok: false, error: "Invalid email or password" }, { status: 401 });
     }
 
-    console.log("Auth successful for user:", data.user.id);
+    console.log("AUTH SUCCESS - User ID:", data.user.id);
 
     // Check if user is admin
     const { data: roleData, error: roleError } = await supabase
@@ -50,23 +53,24 @@ export async function POST(request: Request) {
       .single();
 
     if (roleError) {
-      console.error("Role check error:", roleError);
+      console.error("ROLE ERROR:", roleError);
       await supabase.auth.signOut();
       return NextResponse.json({ ok: false, error: "Admin access required" }, { status: 403 });
     }
 
     const role = roleData as { role?: string; admin?: boolean } | null;
-    console.log("User role:", role);
+    console.log("ROLE DATA:", role);
     
     if (!role?.admin && role?.role !== "admin") {
+      console.log("ADMIN ACCESS DENIED - Role:", role);
       await supabase.auth.signOut();
       return NextResponse.json({ ok: false, error: "Admin access required" }, { status: 403 });
     }
 
-    console.log("Login successful for admin:", data.user.email);
+    console.log("LOGIN SUCCESSFUL - Admin access granted");
     return NextResponse.json({ ok: true, user: { id: data.user.id, email: data.user.email } });
   } catch (error) {
-    console.error("Admin login error:", error);
+    console.error("SERVER ERROR:", error);
     return NextResponse.json({ 
       ok: false, 
       error: "Server error",
