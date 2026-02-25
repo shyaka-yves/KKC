@@ -55,13 +55,21 @@ function AdminLoginForm({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: email.trim(), password })
               });
+              
+              console.log("Login response status:", res.status);
+              
               const data = await res.json();
+              console.log("Login response data:", data);
+              
               if (data.ok) {
+                console.log("Login successful, calling onLoginSuccess");
                 onLoginSuccess();
               } else {
+                console.log("Login failed:", data.error);
                 setError(data.error || "Invalid email or password.");
               }
-            } catch {
+            } catch (error) {
+              console.error("Login fetch error:", error);
               setError("Invalid email or password.");
             } finally {
               setSubmitting(false);
