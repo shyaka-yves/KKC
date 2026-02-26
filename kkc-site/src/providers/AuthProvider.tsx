@@ -95,7 +95,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = useCallback(async () => {
     const sb = getSupabase();
     if (!sb) return;
-    await sb.auth.signInWithOAuth({ provider: "google" });
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    await sb.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${origin}/api/auth/callback`
+      }
+    });
   }, []);
 
   const signInWithEmailPassword = useCallback(

@@ -67,16 +67,20 @@ function AdminLoginForm({
               console.log("Login response data:", data);
 
               if (data.ok) {
-                console.log("Login successful, redirecting to admin dashboard");
-                // Show loading state and redirect dynamically based on current locale
+                console.log("Login successful, calling success callback");
+                // Trigger the session refetch in parent
+                _onLoginSuccess();
+
+                // Show loading state and redirect dynamically
                 setSubmitting(true);
                 setError("Redirecting...");
+
                 setTimeout(() => {
-                  // Get current locale from URL or default to 'en'
-                  const currentPath = window.location.pathname;
-                  const locale = currentPath.split('/')[1] || 'en';
+                  const currentPath = window.location.pathname || "/";
+                  const segments = currentPath.split("/");
+                  const locale = segments[1] || "en";
                   router.push(`/${locale}/admin`);
-                }, 500);
+                }, 800);
               } else {
                 console.log("Login failed:", data.error);
                 setError(data.error || "Invalid email or password.");
