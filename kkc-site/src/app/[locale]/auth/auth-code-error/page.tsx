@@ -7,9 +7,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabase } from "@/lib/supabase/client";
 
+import { useAuth } from "@/providers/AuthProvider";
+
 export default function AuthCodeErrorPage() {
     const t = useTranslations();
     const router = useRouter();
+    const { isAdmin } = useAuth();
     const [recovering, setRecovering] = useState(true);
 
     useEffect(() => {
@@ -26,8 +29,15 @@ export default function AuthCodeErrorPage() {
                         // but we can also trigger a refresh or just check if we have a session now.
                         const { data: { session } } = await sb.auth.getSession();
                         if (session) {
-                            console.log("Session recovered from fragment, redirecting...");
-                            router.replace("/admin");
+                            console.log("Session recovered from fragment, checking role...");
+                            // Small delay to let AuthProvider sync the isAdmin state if it's currently checking
+                            setTimeout(() => {
+                                if (isAdmin) {
+                                    router.replace("/admin");
+                                } else {
+                                    router.replace("/");
+                                }
+                            }, 800);
                             return;
                         }
                     }
@@ -39,7 +49,7 @@ export default function AuthCodeErrorPage() {
         }
 
         attemptRecovery();
-    }, [router]);
+    }, [router, isAdmin]);
 
     if (recovering) {
         return (

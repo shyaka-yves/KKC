@@ -126,11 +126,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = useCallback(async () => {
     const sb = getSupabase();
     if (!sb) return;
+
+    // Detect locale from current URL
+    const currentPath = typeof window !== "undefined" ? window.location.pathname : "/";
+    const segments = currentPath.split("/");
+    const locale = segments.find((s) => s === "en" || s === "rw") || "en";
+
     const origin = typeof window !== "undefined" ? window.location.origin : "";
+
+    // Redirect customers to products after login
+    const redirectTo = `${origin}/api/auth/callback?next=/${locale}/products`;
+    console.log("Signing in with Google, redirecting to:", redirectTo);
+
     await sb.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${origin}/api/auth/callback`
+        redirectTo
       }
     });
   }, []);
@@ -160,7 +171,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOutUser = useCallback(async () => {
     const sb = getSupabase();
     if (!sb) return;
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("kkc_is_admin");
+    }
     await sb.auth.signOut();
+    setUser(null);
+    setIsAdmin(false);
   }, []);
 
   const value = useMemo<AuthState>(
