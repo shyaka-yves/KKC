@@ -42,19 +42,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isEnabled = isSupabaseConfigured();
 
   const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    // Attempt to get a persistence hint from localStorage to avoid "Loading..." flash
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("kkc_is_admin") === "true";
+    }
+    return false;
+  });
   const [isLoading, setIsLoading] = useState(isEnabled);
+
+  // Update persistence hint whenever isAdmin changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("kkc_is_admin", isAdmin ? "true" : "false");
+    }
+  }, [isAdmin]);
 
   useEffect(() => {
     if (!isEnabled) {
+      setIsLoading(false);
       return;
     }
     const sb = getSupabase();
-    if (!sb) return;
+    if (!sb) {
+      setIsLoading(false);
+      return;
+    }
 
     const {
       data: { subscription }
-    } = sb.auth.onAuthStateChange(async (_event, session) => {
+    } = sb.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth State Change:", event, !!session);
       if (!session?.user) {
         setUser(null);
         setIsAdmin(false);
@@ -70,7 +88,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const admin = await fetchIsAdmin(session.user.id);
         setIsAdmin(admin);
-      } catch {
+      } catch (err) {
+        console.error("Admin check error:", err);
         setIsAdmin(false);
       } finally {
         setIsLoading(false);
@@ -88,10 +107,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const admin = await fetchIsAdmin(session.user.id);
           setIsAdmin(admin);
-        } catch {
+        } catch (err) {
+          console.error("Initial session admin check error:", err);
           setIsAdmin(false);
         }
+      } else {
+        setIsAdmin(false);
       }
+      setIsLoading(false);
+    }).catch(err => {
+      console.error("Session retrieval error:", err);
       setIsLoading(false);
     });
 
