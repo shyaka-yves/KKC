@@ -72,11 +72,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsAdmin(admin);
       } catch {
         setIsAdmin(false);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     });
 
-    sb.auth.getSession().then(({ data: { session } }) => {
+    sb.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         setUser({
           uid: session.user.id,
@@ -84,7 +85,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           displayName: session.user.user_metadata?.full_name ?? session.user.email ?? null,
           photoURL: session.user.user_metadata?.avatar_url ?? null
         });
-        fetchIsAdmin(session.user.id).then(setIsAdmin);
+        try {
+          const admin = await fetchIsAdmin(session.user.id);
+          setIsAdmin(admin);
+        } catch {
+          setIsAdmin(false);
+        }
       }
       setIsLoading(false);
     });

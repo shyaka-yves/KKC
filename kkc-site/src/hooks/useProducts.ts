@@ -5,10 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 import { listenVisibleProducts } from "@/lib/firestore/products";
 import { SAMPLE_PRODUCTS } from "@/lib/products/sample";
 import type { Product } from "@/lib/products/types";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 export function useProducts() {
-  const [products, setProducts] = useState<Product[]>(SAMPLE_PRODUCTS);
-  const [source, setSource] = useState<"sample" | "firestore">("sample");
+  const isSupa = isSupabaseConfigured();
+  const [products, setProducts] = useState<Product[]>(isSupa ? [] : SAMPLE_PRODUCTS);
+  const [source, setSource] = useState<"sample" | "firestore">(isSupa ? "firestore" : "sample");
 
   useEffect(() => {
     const unsub = listenVisibleProducts(
@@ -17,8 +19,10 @@ export function useProducts() {
         setSource("firestore");
       },
       () => {
-        setProducts(SAMPLE_PRODUCTS);
-        setSource("sample");
+        if (!isSupa) {
+          setProducts(SAMPLE_PRODUCTS);
+          setSource("sample");
+        }
       }
     );
 
