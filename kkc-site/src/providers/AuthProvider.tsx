@@ -97,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     sb.auth.getSession().then(async ({ data: { session } }) => {
+      console.log("Initial session:", !!session);
       if (session?.user) {
         setUser({
           uid: session.user.id,
@@ -114,9 +115,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setIsAdmin(false);
       }
-      setIsLoading(false);
     }).catch(err => {
       console.error("Session retrieval error:", err);
+    }).finally(() => {
       setIsLoading(false);
     });
 
