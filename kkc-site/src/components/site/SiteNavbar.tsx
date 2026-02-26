@@ -45,9 +45,7 @@ export function SiteNavbar() {
   const t = useTranslations();
   const locale = useLocale();
   const pathname = usePathname();
-  const { user, signOutUser } = useAuth();
-  const { isAdmin: isAdminSession, logout: adminLogout } = useAdminSession();
-  const isAdmin = isAdminSession;
+  const { user, signOutUser, isAdmin } = useAuth();
   const [loginOpen, setLoginOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -130,10 +128,7 @@ export function SiteNavbar() {
                 ) : null}
                 <button
                   type="button"
-                  onClick={async () => {
-                    if (isAdmin) await adminLogout();
-                    else await signOutUser();
-                  }}
+                  onClick={() => signOutUser()}
                   className="inline-flex items-center gap-2 rounded-full border-2 border-brand-blue-200 bg-brand-blue-50 px-3 py-2 text-sm font-medium text-brand-blue-700 shadow-sm transition hover:bg-brand-blue-100 hover:border-brand-blue-300"
                 >
                   <span className="hidden sm:inline">{t("auth.signOut")}</span>

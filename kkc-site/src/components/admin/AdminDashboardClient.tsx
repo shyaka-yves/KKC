@@ -17,16 +17,16 @@ import { deleteProduct, listenAllProducts, upsertProduct } from "@/lib/firestore
 import { uploadProductImage } from "@/lib/storage/upload";
 import type { Product } from "@/lib/products/types";
 import { cn } from "@/lib/utils";
-import { useAdminSession } from "@/hooks/useAdminSession";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { useAuth } from "@/providers/AuthProvider";
 
 function AdminLoginForm({
   t,
-  _onLoginSuccess,
+  signIn,
   router
 }: {
   t: ReturnType<typeof useTranslations>;
-  _onLoginSuccess: () => void;
+  signIn: (email: string, pass: string) => Promise<void>;
   router: ReturnType<typeof useRouter>;
 }) {
   const [email, setEmail] = useState("");
@@ -55,39 +55,22 @@ function AdminLoginForm({
             setSubmitting(true);
             setError(null);
             try {
-              const res = await fetch("/api/admin/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: email.trim(), password })
-              });
+              await signIn(email.trim(), password);
 
-              console.log("Login response status:", res.status);
+              // If we reach here, signInWithEmailPassword succeeded.
+              // AuthProvider will update the isAdmin state shortly.
+              setSubmitting(true);
+              setError("Redirecting...");
 
-              const data = await res.json();
-              console.log("Login response data:", data);
-
-              if (data.ok) {
-                console.log("Login successful, calling success callback");
-                // Trigger the session refetch in parent
-                _onLoginSuccess();
-
-                // Show loading state and redirect dynamically
-                setSubmitting(true);
-                setError("Redirecting...");
-
-                setTimeout(() => {
-                  const currentPath = window.location.pathname || "/";
-                  const segments = currentPath.split("/");
-                  const locale = segments[1] || "en";
-                  router.push(`/${locale}/admin`);
-                }, 800);
-              } else {
-                console.log("Login failed:", data.error);
-                setError(data.error || "Invalid email or password.");
-              }
-            } catch (error) {
-              console.error("Login fetch error:", error);
-              setError("Invalid email or password.");
+              setTimeout(() => {
+                const currentPath = window.location.pathname || "/";
+                const segments = currentPath.split("/");
+                const locale = segments[1] || "en";
+                router.push(`/${locale}/admin`);
+              }, 1200);
+            } catch (err: any) {
+              console.error("Login Error:", err);
+              setError(err.message || "Invalid email or password.");
             } finally {
               setSubmitting(false);
             }
@@ -188,8 +171,8 @@ function ModalShell({
 
 export function AdminDashboardClient() {
   const t = useTranslations();
-  const router = useRouter(); // Add router
-  const { isAdmin, isLoading, logout, refetch } = useAdminSession();
+  const router = useRouter();
+  const { isAdmin, isLoading, signOutUser: logout, signInWithEmailPassword } = useAuth();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -240,7 +223,7 @@ export function AdminDashboardClient() {
 
   if (!isAdmin) {
     return (
-      <AdminLoginForm t={t} _onLoginSuccess={refetch} router={router} />
+      <AdminLoginForm t={t} signIn={signInWithEmailPassword} router={router} />
     );
   }
 
