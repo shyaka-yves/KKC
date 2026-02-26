@@ -47,7 +47,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isEnabled) {
-      setIsLoading(false);
       return;
     }
     const sb = getSupabase();

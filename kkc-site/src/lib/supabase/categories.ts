@@ -74,13 +74,13 @@ export async function upsertCategory(cat: Omit<Category, "id"> & { id?: string }
   };
 
   if (cat.id) {
-    await (sb.from("categories") as any).upsert(
+    await sb.from("categories").upsert(
       { id: cat.id, ...row },
       { onConflict: "id" }
     );
     return cat.id;
   }
-  const { data, error } = await (sb.from("categories") as any)
+  const { data, error } = await sb.from("categories")
     .insert(row)
     .select("id")
     .single();

@@ -191,13 +191,13 @@ export async function upsertProduct(
   };
 
   if (product.id) {
-    await (sb.from("products") as any).upsert(
+    await sb.from("products").upsert(
       { id: product.id, ...row },
       { onConflict: "id" }
     );
     return product.id;
   }
-  const { data, error } = await (sb.from("products") as any)
+  const { data, error } = await sb.from("products")
     .insert(row)
     .select("id")
     .single();

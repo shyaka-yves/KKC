@@ -43,30 +43,48 @@ export interface Database {
     Tables: {
       products: {
         Row: ProductRow;
-        Insert: Omit<ProductRow, "created_at" | "updated_at"> & {
+        Insert: Omit<ProductRow, "id" | "created_at" | "updated_at"> & {
+          id?: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Omit<ProductRow, "id">>;
+        Relationships: [];
       };
       categories: {
         Row: CategoryRow;
-        Insert: Omit<CategoryRow, "created_at" | "updated_at"> & {
+        Insert: Omit<CategoryRow, "id" | "created_at" | "updated_at"> & {
+          id?: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Omit<CategoryRow, "id">>;
+        Relationships: [];
       };
       favorites: {
         Row: FavoriteRow;
-        Insert: FavoriteRow;
+        Insert: Omit<FavoriteRow, "created_at"> & { created_at?: string };
         Update: Partial<FavoriteRow>;
+        Relationships: [];
       };
       roles: {
         Row: RoleRow;
-        Insert: RoleRow;
+        Insert: Omit<RoleRow, "created_at"> & { created_at?: string };
         Update: Partial<RoleRow>;
+        Relationships: [];
       };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
     };
   };
 }

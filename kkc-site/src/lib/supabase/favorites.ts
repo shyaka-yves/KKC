@@ -48,8 +48,8 @@ async function fetchFavorites(
 export async function addFavorite(userId: string, productId: string) {
   const sb = getSupabase();
   if (!sb) throw new Error("Supabase not configured");
-  await (sb.from("favorites") as any).upsert(
-    { user_id: userId, product_id: productId },
+  await sb.from("favorites").upsert(
+    { user_id: userId, product_id: productId, created_at: new Date().toISOString() },
     { onConflict: "user_id,product_id" }
   );
 }

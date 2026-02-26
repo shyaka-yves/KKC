@@ -22,11 +22,11 @@ import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 function AdminLoginForm({
   t,
-  onLoginSuccess,
+  _onLoginSuccess,
   router
 }: {
   t: ReturnType<typeof useTranslations>;
-  onLoginSuccess: () => void;
+  _onLoginSuccess: () => void;
   router: ReturnType<typeof useRouter>;
 }) {
   const [email, setEmail] = useState("");
@@ -60,12 +60,12 @@ function AdminLoginForm({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: email.trim(), password })
               });
-              
+
               console.log("Login response status:", res.status);
-              
+
               const data = await res.json();
               console.log("Login response data:", data);
-              
+
               if (data.ok) {
                 console.log("Login successful, redirecting to admin dashboard");
                 // Show loading state and redirect dynamically based on current locale
@@ -236,7 +236,7 @@ export function AdminDashboardClient() {
 
   if (!isAdmin) {
     return (
-      <AdminLoginForm t={t} onLoginSuccess={refetch} router={router} />
+      <AdminLoginForm t={t} _onLoginSuccess={refetch} router={router} />
     );
   }
 
@@ -276,30 +276,30 @@ export function AdminDashboardClient() {
               {t("auth.signOut")}
             </button>
             <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setTab("products")}
-              className={cn(
-                "rounded-full px-4 py-2 text-sm font-semibold transition",
-                tab === "products"
-                  ? "bg-brand-blue-700 text-white shadow-lg shadow-brand-blue-600/25"
-                  : "glass text-slate-800 hover:bg-white/70"
-              )}
-            >
-              {t("admin.manageProducts")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab("categories")}
-              className={cn(
-                "rounded-full px-4 py-2 text-sm font-semibold transition",
-                tab === "categories"
-                  ? "bg-brand-blue-700 text-white shadow-lg shadow-brand-blue-600/25"
-                  : "glass text-slate-800 hover:bg-white/70"
-              )}
-            >
-              {t("admin.manageCategories")}
-            </button>
+              <button
+                type="button"
+                onClick={() => setTab("products")}
+                className={cn(
+                  "rounded-full px-4 py-2 text-sm font-semibold transition",
+                  tab === "products"
+                    ? "bg-brand-blue-700 text-white shadow-lg shadow-brand-blue-600/25"
+                    : "glass text-slate-800 hover:bg-white/70"
+                )}
+              >
+                {t("admin.manageProducts")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setTab("categories")}
+                className={cn(
+                  "rounded-full px-4 py-2 text-sm font-semibold transition",
+                  tab === "categories"
+                    ? "bg-brand-blue-700 text-white shadow-lg shadow-brand-blue-600/25"
+                    : "glass text-slate-800 hover:bg-white/70"
+                )}
+              >
+                {t("admin.manageCategories")}
+              </button>
             </div>
           </div>
         </div>
